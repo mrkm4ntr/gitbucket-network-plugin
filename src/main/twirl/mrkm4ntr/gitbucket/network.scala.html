@@ -1,0 +1,9 @@
+@(repository: gitbucket.core.service.RepositoryService.RepositoryInfo)(implicit context: gitbucket.core.controller.Context)
+@import context._
+@import gitbucket.core.view.helpers._
+@gitbucket.core.html.main("Network", Some(repository)) {
+  @gitbucket.core.html.menu("network", repository) {
+    <div id="root">Hello World!</div>
+    <script src="@assets/plugins/network/bundle.js"></script>
+  }
+}
