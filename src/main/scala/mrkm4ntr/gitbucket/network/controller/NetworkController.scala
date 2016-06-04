@@ -45,6 +45,7 @@ trait NetworkControllerBase extends ControllerBase {
           plotCommit.getParents.toList.map { revCommit =>
             commitList.find { case (p, i) => p.getId == revCommit.getId } map { case (p, i) => Parent(i, p.getLane.getPosition) }
           } flatten,
+          plotCommit.getId.getName,
           plotCommit.getShortMessage
         )
       }
@@ -57,6 +58,7 @@ case class Commit(
   index: Int,
   lane: Int,
   parents: Seq[Parent],
+  id: String,
   message: String)
 
 case class Parent(
