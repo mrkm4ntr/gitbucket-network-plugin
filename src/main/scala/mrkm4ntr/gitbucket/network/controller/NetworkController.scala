@@ -45,6 +45,7 @@ trait NetworkControllerBase extends ControllerBase {
           plotCommit.getParents.toList.map { revCommit =>
             commitList.find { case (p, i) => p.getId == revCommit.getId } map { case (p, i) => Parent(i, p.getLane.getPosition) }
           } flatten,
+          for (i <- Range(0, plotCommit.getRefCount)) yield plotCommit.getRef(i).getName,
           plotCommit.getId.getName,
           plotCommit.getShortMessage,
           getAvatarUrl(plotCommit.getAuthorIdent.getEmailAddress, 30)
@@ -74,6 +75,7 @@ case class Commit(
   index: Int,
   lane: Int,
   parents: Seq[Parent],
+  refs: Seq[String],
   id: String,
   message: String,
   avatarUrl: String)
