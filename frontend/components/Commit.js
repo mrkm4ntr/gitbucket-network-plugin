@@ -2,7 +2,7 @@ import React, { PropTypes } from 'react';
 
 const height = 30;
 
-const Commit = ({ maxLane, index, lane, message, parents }) => (
+const Commit = ({ maxLane, index, lane, message, parents, id, avatarUrl }) => (
   <g transform={`translate(0, ${index * height})`}>
     {parents.map(p => {
       if (lane === p.lane) {
@@ -15,7 +15,7 @@ const Commit = ({ maxLane, index, lane, message, parents }) => (
     })}
     <rect x={maxLane * 30} y="5" width="20" height="20" stroke="#a3c5cc" fill="none" stroke-width="2"></rect>
     <circle cx={lane * 15 + 10} cy="15" r="3" onClick={() => {location.href = `./commit/${id}`}}></circle>
-    <image x={maxLane * 30} y="5" width="20" height="20" preserveAspectRatio="none" href="./Koala.png" ></image>
+    <image x={maxLane * 30} y="5" width="20" height="20" preserveAspectRatio="none" href={avatarUrl} ></image>
     <text x={maxLane * 30 + 30} y="15" width="20" height="20" fill="#000000" stroke-width="2" font="14px">
       <tspan dy="5">{message}</tspan>
     </text>

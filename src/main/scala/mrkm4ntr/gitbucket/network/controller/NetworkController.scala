@@ -1,8 +1,8 @@
 package mrkm4ntr.gitbucket.network.controller
 
-import gitbucket.core.controller.ControllerBase
-import gitbucket.core.service.{AccountService, RepositoryService}
-import gitbucket.core.util.ReferrerAuthenticator
+import gitbucket.core.controller.{Context, ControllerBase}
+import gitbucket.core.service.{AccountService, RepositoryService, RequestCache}
+import gitbucket.core.util.{ReferrerAuthenticator, StringUtil}
 import gitbucket.core.util.Directory._
 import gitbucket.core.util.ControlUtil._
 import mrkm4ntr.gitbucket.html
@@ -11,10 +11,10 @@ import org.eclipse.jgit.revplot.{PlotWalk, PlotLane, PlotCommitList}
 import scala.collection.JavaConverters._
 
 class NetworkController extends NetworkControllerBase
-  with RepositoryService with AccountService with ReferrerAuthenticator
+  with RepositoryService with AccountService with ReferrerAuthenticator with RequestCache
 
 trait NetworkControllerBase extends ControllerBase {
-  self: RepositoryService with AccountService with ReferrerAuthenticator =>
+  self: RepositoryService with AccountService with ReferrerAuthenticator with RequestCache =>
 
   before("*/*/network/commits") {
     contentType = formats("json")
@@ -46,12 +46,28 @@ trait NetworkControllerBase extends ControllerBase {
             commitList.find { case (p, i) => p.getId == revCommit.getId } map { case (p, i) => Parent(i, p.getLane.getPosition) }
           } flatten,
           plotCommit.getId.getName,
-          plotCommit.getShortMessage
+          plotCommit.getShortMessage,
+          getAvatarUrl(plotCommit.getAuthorIdent.getEmailAddress, 30)
         )
       }
     }
   })
 
+  def getAvatarUrl(mailAddress: String, size: Int)(implicit context: Context): String = {
+    getAccountByMailAddress(mailAddress).map { account =>
+      if (account.image.isEmpty && context.settings.gravatar) {
+        s"""https://www.gravatar.com/avatar/${StringUtil.md5(account.mailAddress.toLowerCase)}?s=${size}&d=retro&r=g"""
+      } else {
+        s"""${context.path}/${account.userName}/_avatar"""
+      }
+    } getOrElse {
+      if (context.settings.gravatar) {
+        s"""https://www.gravatar.com/avatar/${StringUtil.md5(mailAddress.toLowerCase)}?s=${size}&d=retro&r=g"""
+      } else {
+        s"""${context.path}/_unknown/_avatar"""
+      }
+    }
+  }
 }
 
 case class Commit(
@@ -59,7 +75,8 @@ case class Commit(
   lane: Int,
   parents: Seq[Parent],
   id: String,
-  message: String)
+  message: String,
+  avatarUrl: String)
 
 case class Parent(
   index: Int,
