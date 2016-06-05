@@ -10,8 +10,8 @@ export default class App extends React.Component {
   }
 
   componentDidMount() {
-    fetch('./network/commits').then(r => r.json()).then(commits => {
-      this.setState({ maxLane: 4, commits });
+    fetch('./network/commits').then(r => r.json()).then(data => {
+      this.setState(data);
     });
   }
 

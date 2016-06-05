@@ -7,7 +7,9 @@ import gitbucket.core.util.Directory._
 import gitbucket.core.util.ControlUtil._
 import mrkm4ntr.gitbucket.html
 import org.eclipse.jgit.api.Git
-import org.eclipse.jgit.revplot.{PlotWalk, PlotLane, PlotCommitList}
+import org.eclipse.jgit.revplot.{PlotCommit, PlotCommitList, PlotLane, PlotWalk}
+
+import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 
 class NetworkController extends NetworkControllerBase
@@ -36,21 +38,26 @@ trait NetworkControllerBase extends ControllerBase {
       plotCommitList.source(revWalk)
       plotCommitList.fillTo(100)
 
-      val commitList = plotCommitList.asScala.zipWithIndex
-
-      commitList.map { case (plotCommit, i) =>
-        Commit(
-          i,
-          plotCommit.getLane.getPosition,
-          plotCommit.getParents.toList.map { revCommit =>
-            commitList.find { case (p, i) => p.getId == revCommit.getId } map { case (p, i) => Parent(i, p.getLane.getPosition) }
-          } flatten,
-          for (i <- Range(0, plotCommit.getRefCount)) yield plotCommit.getRef(i).getName,
-          plotCommit.getId.getName,
-          plotCommit.getShortMessage,
-          getAvatarUrl(plotCommit.getAuthorIdent.getEmailAddress, 30)
-        )
+      @tailrec
+      def traverse(plotCommitList: List[(PlotCommit[PlotLane], Int)], maxLane: Int, result: List[Commit]): (Int, List[Commit]) = {
+        plotCommitList match {
+          case Nil => (maxLane, result)
+          case (plotCommit, index) :: tail => traverse(tail, maxLane max plotCommit.getLane.getPosition, Commit(
+            index,
+            plotCommit.getLane.getPosition,
+            plotCommit.getParents.toList.map { revCommit =>
+              tail.find { case (p, i) => p.getId == revCommit.getId } map { case (p, i) => Parent(i, p.getLane.getPosition) }
+            } flatten,
+            for (i <- Range(0, plotCommit.getRefCount)) yield plotCommit.getRef(i).getName,
+            plotCommit.getId.getName,
+            plotCommit.getShortMessage,
+            getAvatarUrl(plotCommit.getAuthorIdent.getEmailAddress, 30)
+          ) :: result)
+        }
       }
+
+      val result = traverse(plotCommitList.asScala.zipWithIndex.toList, 0, Nil)
+      Data(result._1, result._2.reverse)
     }
   })
 
@@ -70,6 +77,10 @@ trait NetworkControllerBase extends ControllerBase {
     }
   }
 }
+
+case class Data(
+  maxLane: Int,
+  commits: List[Commit])
 
 case class Commit(
   index: Int,
