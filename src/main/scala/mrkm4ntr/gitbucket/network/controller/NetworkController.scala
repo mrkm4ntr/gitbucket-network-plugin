@@ -1,5 +1,9 @@
 package mrkm4ntr.gitbucket.network.controller
 
+import java.net.URI
+import java.nio.file._
+import java.util
+
 import gitbucket.core.controller.{Context, ControllerBase}
 import gitbucket.core.service.{AccountService, RepositoryService, RequestCache}
 import gitbucket.core.util.{ReferrerAuthenticator, StringUtil}
@@ -25,6 +29,21 @@ trait NetworkControllerBase extends ControllerBase {
   get("/:owner/:repository/network")(referrersOnly { repository =>
     html.network(repository)
   })
+
+  get("/assets/plugins/network/bundle.js") {
+    contentType = "text/javascript"
+    val uri = getClass().getResource("bundle.js").toString()
+    val tmp = uri.split("!")
+    try {
+      val fs = FileSystems.getFileSystem(URI.create(tmp(0)))
+      new String(Files.readAllBytes(fs.getPath(tmp(1))))
+    } catch {
+      case e: FileSystemNotFoundException => {
+        val fs = FileSystems.newFileSystem(URI.create(tmp(0)), new util.HashMap[String, String]())
+        new String(Files.readAllBytes(fs.getPath(tmp(1))))
+      }
+    }
+  }
 
   get("/:owner/:repository/network/commits")(referrersOnly { repository =>
     using(Git.open(getRepositoryDir(repository.owner, repository.name))) { git =>

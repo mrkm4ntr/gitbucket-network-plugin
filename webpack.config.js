@@ -4,7 +4,7 @@ module.exports = {
   entry: './scripts/index.js',
   output: {
     path: __dirname,
-    filename: 'bundle.js'
+    filename: 'src/main/resources/mrkm4ntr/gitbucket/network/controller/bundle.js'
   },
   module: {
     loaders: [
