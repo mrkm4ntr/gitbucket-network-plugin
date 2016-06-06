@@ -22,9 +22,17 @@ const Commit = ({ maxLane, index, lane, message, parents, id, avatarUrl }) => (
   </g>
 );
 
-/*Commit.propTypes = {
-  y: PropTypes.int.isRequired,
-  message: PropTypes.string.isRequired
-};*/
+Commit.propTypes = {
+  maxLane: PropTypes.number.isRequired,
+  index: PropTypes.number.isRequired,
+  lane: PropTypes.number.isRequired,
+  message: PropTypes.string.isRequired,
+  parents: PropTypes.arrayOf(PropTypes.shape({
+    index: PropTypes.number.isRequired,
+    lane: PropTypes.number.isRequired
+  })).isRequired,
+  id: PropTypes.string.isRequired,
+  avatarUrl: PropTypes.string.isRequired
+};
 
 export default Commit;
