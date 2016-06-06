@@ -27,9 +27,9 @@ export default class App extends React.Component {
   render () {
     return (
       <div style={{marginLeft: '20px'}}>
-        <DropdownButton title={`branch:${this.state.currentBranch}`} onSelect={this.handleSelect} style={{marginBottom: '10px'}}>
+        <DropdownButton id={'branchSwitcher'} title={`branch:${this.state.currentBranch}`} onSelect={this.handleSelect} style={{marginBottom: '10px'}}>
           {this.state.branches.map(branch =>
-            <MenuItem eventKey={branch}>{branch}</MenuItem>
+            <MenuItem key={branch} eventKey={branch}>{branch}</MenuItem>
           )}
         </DropdownButton>
         <div style={{padding: '20px'}}>

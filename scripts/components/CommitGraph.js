@@ -9,7 +9,7 @@ const CommitGraph = ({ maxLane, commits }) => (
       </marker>
     </defs>
     {commits.map((commit, index) =>
-      <Commit {...commit} index={index} maxLane={maxLane} />
+      <Commit key={commit.id} {...commit} index={index} maxLane={maxLane} />
     )}
   </svg>
 );
