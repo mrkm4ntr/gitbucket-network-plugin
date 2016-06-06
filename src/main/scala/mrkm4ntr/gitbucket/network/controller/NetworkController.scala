@@ -47,8 +47,9 @@ trait NetworkControllerBase extends ControllerBase {
         }
       }
 
+      val currentBranch = params.getOrElse("branch", repository.repository.defaultBranch)
       val repo = git.getRepository
-      val rootId = repo.resolve("HEAD")
+      val rootId = repo.resolve(currentBranch)
       val revWalk = new PlotWalk(repo)
       try {
         val root = revWalk.parseCommit(rootId)
@@ -57,7 +58,7 @@ trait NetworkControllerBase extends ControllerBase {
         plotCommitList.source(revWalk)
         plotCommitList.fillTo(100)
         val result = traverse(plotCommitList.asScala.zipWithIndex.toList, 0, Nil)
-        Data(result._1, result._2.reverse)
+        Data(result._1, result._2.reverse, repository.branchList, currentBranch)
       } finally {
         revWalk.dispose()
       }
@@ -83,7 +84,9 @@ trait NetworkControllerBase extends ControllerBase {
 
 case class Data(
   maxLane: Int,
-  commits: List[Commit])
+  commits: Seq[Commit],
+  branches: Seq[String],
+  currentBranch: String)
 
 case class Commit(
   index: Int,
