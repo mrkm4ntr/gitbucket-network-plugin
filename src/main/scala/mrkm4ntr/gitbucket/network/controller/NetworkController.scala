@@ -28,15 +28,6 @@ trait NetworkControllerBase extends ControllerBase {
 
   get("/:owner/:repository/network/commits")(referrersOnly { repository =>
     using(Git.open(getRepositoryDir(repository.owner, repository.name))) { git =>
-      val repo = git.getRepository
-      val revWalk = new PlotWalk(repo)
-      val rootId = repo.resolve("HEAD")
-      val root = revWalk.parseCommit(rootId)
-      revWalk.markStart(root)
-
-      val plotCommitList = new PlotCommitList[PlotLane]
-      plotCommitList.source(revWalk)
-      plotCommitList.fillTo(100)
 
       @tailrec
       def traverse(plotCommitList: List[(PlotCommit[PlotLane], Int)], maxLane: Int, result: List[Commit]): (Int, List[Commit]) = {
@@ -56,8 +47,20 @@ trait NetworkControllerBase extends ControllerBase {
         }
       }
 
-      val result = traverse(plotCommitList.asScala.zipWithIndex.toList, 0, Nil)
-      Data(result._1, result._2.reverse)
+      val repo = git.getRepository
+      val rootId = repo.resolve("HEAD")
+      val revWalk = new PlotWalk(repo)
+      try {
+        val root = revWalk.parseCommit(rootId)
+        revWalk.markStart(root)
+        val plotCommitList = new PlotCommitList[PlotLane]
+        plotCommitList.source(revWalk)
+        plotCommitList.fillTo(100)
+        val result = traverse(plotCommitList.asScala.zipWithIndex.toList, 0, Nil)
+        Data(result._1, result._2.reverse)
+      } finally {
+        revWalk.dispose()
+      }
     }
   })
 
