@@ -3,12 +3,18 @@ import React, { PropTypes } from 'react';
 const height = 30;
 const pallet = ['#000000', '#FFD700', '#C71585', '#006400', '#0000ff'];
 
-const Commit = ({ maxLane, index, lane, message, parents, id, avatarUrl }) => {
+const Commit = ({ maxLane, index, lane, message, parents, id, avatarUrl, month = "", day = "" }) => {
 
   const x = (maxLane + 2) * 15;
   const color = pallet[lane % pallet.length];
 
-  return <g transform={`translate(0, ${index * height})`}>
+  return <g transform={`translate(50, ${index * height})`}>
+    <text x="-44" y="15">
+      <tspan dy="5">{month}</tspan>
+    </text>
+    <text x="-28" y="15">
+      <tspan dy="5">{day}</tspan>
+    </text>
     {parents.map(p => {
       if (lane === p.lane) {
         return <path key={p.index} fill="none" stroke-width="2" d={`M${lane * 15 + 10},15 v${(p.index - index) * height}`} stroke={color}></path>
@@ -37,7 +43,9 @@ Commit.propTypes = {
     lane: PropTypes.number.isRequired
   })).isRequired,
   id: PropTypes.string.isRequired,
-  avatarUrl: PropTypes.string.isRequired
+  avatarUrl: PropTypes.string.isRequired,
+  month: PropTypes.number,
+  day: PropTypes.number
 };
 
 export default Commit;

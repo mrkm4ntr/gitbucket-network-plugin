@@ -3,6 +3,7 @@ package mrkm4ntr.gitbucket.network.controller
 import java.net.URI
 import java.nio.file._
 import java.util
+import java.util.Date
 
 import gitbucket.core.controller.{Context, ControllerBase}
 import gitbucket.core.service.{AccountService, RepositoryService, RequestCache}
@@ -12,6 +13,7 @@ import gitbucket.core.util.ControlUtil._
 import mrkm4ntr.gitbucket.html
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.revplot.{PlotCommit, PlotCommitList, PlotLane, PlotWalk}
+import org.joda.time._
 
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
@@ -49,20 +51,32 @@ trait NetworkControllerBase extends ControllerBase {
     using(Git.open(getRepositoryDir(repository.owner, repository.name))) { git =>
 
       @tailrec
-      def traverse(plotCommitList: List[(PlotCommit[PlotLane], Int)], maxLane: Int, result: List[Commit]): (Int, List[Commit]) = {
+      def traverse(plotCommitList: List[(PlotCommit[PlotLane], Int)],
+                   nextCommitDate: Option[Date],
+                   maxLane: Int,
+                   result: List[Commit]): (Int, List[Commit]) = {
         plotCommitList match {
           case Nil => (maxLane, result)
-          case (plotCommit, index) :: tail => traverse(tail, maxLane max plotCommit.getLane.getPosition, Commit(
-            index,
-            plotCommit.getLane.getPosition,
-            plotCommit.getParents.toList.map { revCommit =>
-              tail.find { case (p, i) => p.getId == revCommit.getId } map { case (p, i) => Parent(i, p.getLane.getPosition) }
-            } flatten,
-            for (i <- Range(0, plotCommit.getRefCount)) yield plotCommit.getRef(i).getName,
-            plotCommit.getId.getName,
-            plotCommit.getShortMessage,
-            getAvatarUrl(plotCommit.getAuthorIdent.getEmailAddress, 30)
-          ) :: result)
+          case (plotCommit, index) :: tail => {
+            val (month, day) = getDateMarker(plotCommit.getCommitterIdent.getWhen, nextCommitDate)
+            traverse(tail,
+              Some(plotCommit.getCommitterIdent.getWhen),
+              maxLane max plotCommit.getLane.getPosition,
+              Commit(
+                index,
+                plotCommit.getLane.getPosition,
+                plotCommit.getParents.toList.map { revCommit =>
+                  tail.find { case (p, i) => p.getId == revCommit.getId } map { case (p, i) => Parent(i, p.getLane.getPosition) }
+                } flatten,
+                for (i <- Range(0, plotCommit.getRefCount)) yield plotCommit.getRef(i).getName,
+                plotCommit.getId.getName,
+                plotCommit.getShortMessage,
+                getAvatarUrl(plotCommit.getAuthorIdent.getEmailAddress, 30),
+                month,
+                day
+              ) :: result
+            )
+          }
         }
       }
 
@@ -76,13 +90,36 @@ trait NetworkControllerBase extends ControllerBase {
         val plotCommitList = new PlotCommitList[PlotLane]
         plotCommitList.source(revWalk)
         plotCommitList.fillTo(100)
-        val result = traverse(plotCommitList.asScala.zipWithIndex.toList, 0, Nil)
+        val result = traverse(plotCommitList.asScala.zipWithIndex.toList, None, 0, Nil)
         Data(result._1, result._2.reverse, repository.branchList, currentBranch)
       } finally {
         revWalk.dispose()
       }
     }
   })
+
+  def getDateMarker(date1: Date, date2: Option[Date]): (Option[Int], Option[Int]) = date2.map { date2 =>
+    val dateTime1 = new DateTime(date1)
+    val dateTime2 = new DateTime(date2)
+    val day = if (Days.daysBetween(
+      new LocalDate(dateTime1.getYear, dateTime1.getMonthOfYear, dateTime1.getDayOfMonth),
+      new LocalDate(dateTime2.getYear, dateTime2.getMonthOfYear, dateTime2.getDayOfMonth)).getDays > 0) {
+      Some(dateTime1.getDayOfMonth)
+    } else {
+      None
+    }
+    val month = if (Months.monthsBetween(
+      new YearMonth(dateTime1.getYear, dateTime1.getMonthOfYear),
+      new YearMonth(dateTime2.getYear, dateTime2.getMonthOfYear)).getMonths > 0) {
+      Some(dateTime1.getMonthOfYear)
+    } else {
+      None
+    }
+    (month, day)
+  } getOrElse {
+    val dateTime1 = new DateTime(date1)
+    (Some(dateTime1.getMonthOfYear), Some(dateTime1.getDayOfMonth))
+  }
 
   def getAvatarUrl(mailAddress: String, size: Int)(implicit context: Context): String = {
     getAccountByMailAddress(mailAddress).map { account =>
@@ -114,7 +151,9 @@ case class Commit(
   refs: Seq[String],
   id: String,
   message: String,
-  avatarUrl: String)
+  avatarUrl: String,
+  month: Option[Int],
+  day: Option[Int])
 
 case class Parent(
   index: Int,
