@@ -13,6 +13,7 @@ import gitbucket.core.util.ControlUtil._
 import mrkm4ntr.gitbucket.html
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.revplot.{PlotCommit, PlotCommitList, PlotLane, PlotWalk}
+import org.eclipse.jgit.revwalk.RevSort
 import org.joda.time._
 
 import scala.annotation.tailrec
@@ -80,13 +81,15 @@ trait NetworkControllerBase extends ControllerBase {
         }
       }
 
-      val currentBranch = params.getOrElse("branch", repository.repository.defaultBranch)
+      val currentBranch = params.get("branch")
       val repo = git.getRepository
-      val rootId = repo.resolve(currentBranch)
       val revWalk = new PlotWalk(repo)
+      revWalk.sort(RevSort.COMMIT_TIME_DESC)
       try {
-        val root = revWalk.parseCommit(rootId)
-        revWalk.markStart(root)
+        currentBranch match {
+          case Some(branch) => revWalk.markStart(revWalk.parseCommit(repo.resolve(branch)))
+          case _ => revWalk.markStart(repository.branchList.map(repo.resolve(_)).map(revWalk.parseCommit(_)).asJava)
+        }
         val plotCommitList = new PlotCommitList[PlotLane]
         plotCommitList.source(revWalk)
         plotCommitList.fillTo(100)
@@ -142,7 +145,7 @@ case class Data(
   maxLane: Int,
   commits: Seq[Commit],
   branches: Seq[String],
-  currentBranch: String)
+  currentBranch: Option[String])
 
 case class Commit(
   index: Int,

@@ -3,31 +3,39 @@ import { DropdownButton, MenuItem } from 'react-bootstrap'
 import CommitGraph from './CommitGraph';
 
 export default class App extends React.Component {
+
+  static get allBranchName() {
+    return 'all branches';
+  }
+
   constructor(props) {
     super(props);
     this.state = {
       maxLane: 0,
       commits: [],
       branches: [],
-      currentBranch: ''
+      currentBranch: App.allBranchName
     };
-    this.handleSelect = key => {
-      fetch(`./network/commits?branch=${key}`).then(r => r.json()).then(data => {
-        this.setState(data);
-      });
-    }
+  }
+
+  fetchData(key) {
+    const query = (key && key !== App.allBranchName) ? `?branch=${key}` : '' 
+    fetch(`./network/commits${query}`).then(r => r.json()).then(data => {
+      data.branches.push(App.allBranchName);
+      if (!data.currentBranch)
+        data.currentBranch = App.allBranchName;
+      this.setState(data);
+    });
   }
 
   componentDidMount() {
-    fetch('./network/commits').then(r => r.json()).then(data => {
-      this.setState(data);
-    });
+    this.fetchData();
   }
 
   render () {
     return (
       <div style={{marginLeft: '20px'}}>
-        <DropdownButton id={'branchSwitcher'} title={`branch:${this.state.currentBranch}`} onSelect={this.handleSelect} style={{marginBottom: '10px'}}>
+        <DropdownButton id={'branchSwitcher'} title={`branch:${this.state.currentBranch}`} onSelect={this.fetchData.bind(this)} style={{marginBottom: '10px'}}>
           {this.state.branches.map(branch =>
             <MenuItem key={branch} eventKey={branch}>{branch}</MenuItem>
           )}
