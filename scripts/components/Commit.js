@@ -25,7 +25,7 @@ const Commit = ({ maxLane, index, lane, message, parents, id, avatarUrl, month =
       return <path key={p.index} fill="none" stroke-width="2" d={`M${lane * 15 + 10},15 v${(p.index - index) * height} h${(p.lane - lane) * 15}`} stroke={color}></path>
     })}
     <rect x={x} y="5" width="20" height="20" stroke={color} fill="none" stroke-width="2"></rect>
-    <circle cx={lane * 15 + 10} cy="15" r="3" stroke={color} fill={color} onClick={() => {location.href = `./commit/${id}`}}></circle>
+    <circle cx={lane * 15 + 10} cy="15" r="3" stroke={color} fill={color} onClick={() => {window.open(`./commit/${id}`, '_blank')}} style={{cursor: 'pointer'}}></circle>
     <image x={x} y="5" width="20" height="20" preserveAspectRatio="none" href={avatarUrl} ></image>
     <text x={x + 30} y="15" width="20" height="20" fill="#000000" stroke-width="2" font="14px">
       <tspan dy="5">{message}</tspan>
