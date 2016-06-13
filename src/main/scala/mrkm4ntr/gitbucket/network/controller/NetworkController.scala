@@ -68,8 +68,8 @@ trait NetworkControllerBase extends ControllerBase {
                 plotCommit.getLane.getPosition,
                 plotCommit.getParents.toList.map { revCommit =>
                   tail.find { case (p, i) => p.getId == revCommit.getId } map { case (p, i) => Parent(i, p.getLane.getPosition) }
-                } flatten,
-                for (i <- Range(0, plotCommit.getRefCount)) yield plotCommit.getRef(i).getName,
+                },
+                for (i <- Range(0, plotCommit.getRefCount)) yield getHeadOrTag(plotCommit.getRef(i).getName),
                 plotCommit.getId.getName,
                 plotCommit.getShortMessage,
                 getAvatarUrl(plotCommit.getAuthorIdent.getEmailAddress, 30),
@@ -139,6 +139,12 @@ trait NetworkControllerBase extends ControllerBase {
       }
     }
   }
+
+  def getHeadOrTag(refName: String) = refName.split("/").toList match {
+    case head :: Nil => Some(head)
+    case _ :: kind :: name :: Nil if kind == "heads" || kind == "tags" => Some(name)
+    case _ => None
+  }
 }
 
 case class Data(
@@ -150,8 +156,8 @@ case class Data(
 case class Commit(
   index: Int,
   lane: Int,
-  parents: Seq[Parent],
-  refs: Seq[String],
+  parents: Seq[Option[Parent]],
+  refs: Seq[Option[String]],
   id: String,
   message: String,
   avatarUrl: String,
