@@ -24,13 +24,7 @@ class Plugin extends gitbucket.core.plugin.Plugin {
   )
 
   override val repositoryMenus = Seq(
-    (repositoryInfo: RepositoryInfo, context: Context) => Some(Link("network", "Network", "/network"))
+    (repositoryInfo: RepositoryInfo, context: Context) => Some(Link("network", "Network", "/network", Some("circuit-board")))
   )
 
-  override def javaScripts(registry: PluginRegistry, context: ServletContext, settings: SystemSettings): Seq[(String, String)] = {
-    val path = settings.baseUrl.getOrElse(context.getContextPath)
-    Seq(
-
-    )
-  }
 }
