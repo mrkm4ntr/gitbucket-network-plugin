@@ -14,16 +14,19 @@ export default class App extends React.Component {
       maxLane: 0,
       commits: [],
       branches: [],
-      currentBranch: App.allBranchName
+      currentBranch: App.allBranchName,
+      isFetching: true
     };
   }
 
   fetchData(key) {
+    this.setState(Object.assign({}, this.state, { isFetching: true }));
     const query = (key && key !== App.allBranchName) ? `?branch=${key}` : '' 
     fetch(`./network/commits${query}`).then(r => r.json()).then(data => {
       data.branches.push(App.allBranchName);
       if (!data.currentBranch)
         data.currentBranch = App.allBranchName;
+      data.isFetching = false;
       this.setState(data);
     });
   }
@@ -40,8 +43,14 @@ export default class App extends React.Component {
             <MenuItem key={branch} eventKey={branch}>{branch}</MenuItem>
           )}
         </DropdownButton>
-        <div style={{padding: '20px'}}>
-          <CommitGraph {...this.state} />
+        <div style={{border: 'solid 1px #ccc', position: 'relative'}}>
+          <div style={this.state.isFetching ? {} : { display: 'none' }}>
+            <div style={{position: 'absolute', width: '100%', height: `${this.state.commits.length * 30}px`}}></div>
+            <img src="../../../assets/common/images/indicator-bar.gif" style={{margin: '300px auto', display: 'block'}} />
+          </div>
+          <div style={this.state.isFetching ? { display: 'none' } : {}}>
+            <CommitGraph {...this.state} />
+          </div>
         </div>
       </div>
     );
