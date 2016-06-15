@@ -2,6 +2,7 @@ import React from 'react';
 import DropdownButton from 'react-bootstrap/lib/DropdownButton'
 import MenuItem from 'react-bootstrap/lib/MenuItem'
 import CommitGraph from './CommitGraph';
+import 'whatwg-fetch';
 
 export default class App extends React.Component {
 
@@ -23,12 +24,17 @@ export default class App extends React.Component {
   fetchData(key) {
     this.setState(Object.assign({}, this.state, { isFetching: true }));
     const query = (key && key !== App.allBranchName) ? `?branch=${key}` : '' 
-    fetch(`./network/commits${query}`).then(r => r.json()).then(data => {
+    fetch(`./network/commits${query}`).then(
+      r => r.json()
+    ).then(data => {
       data.branches.push(App.allBranchName);
       if (!data.currentBranch)
         data.currentBranch = App.allBranchName;
       data.isFetching = false;
       this.setState(data);
+    }).catch(e => {
+      this.setState(Object.assign(this.state, { isFetching: false }));
+      alert(e);
     });
   }
 
