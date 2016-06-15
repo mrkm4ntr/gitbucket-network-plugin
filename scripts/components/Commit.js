@@ -1,9 +1,10 @@
 import React, { PropTypes } from 'react';
+import Message from './Message';
 
 const height = 30;
 const pallet = ['#000000', '#FFD700', '#C71585', '#006400', '#0000ff'];
 
-const Commit = ({ maxLane, index, lane, message, parents, id, avatarUrl, month = "", day = "" }) => {
+const Commit = ({ maxLane, index, lane, message, parents, id, avatarUrl, refs, month = "", day = "" }) => {
 
   const x = (maxLane + 2) * 15;
   const color = pallet[lane % pallet.length];
@@ -27,9 +28,7 @@ const Commit = ({ maxLane, index, lane, message, parents, id, avatarUrl, month =
     <rect x={x} y="5" width="20" height="20" stroke={color} fill="none" stroke-width="2"></rect>
     <circle cx={lane * 15 + 10} cy="15" r="3" stroke={color} fill={color} onClick={() => {window.open(`./commit/${id}`, '_blank')}} style={{cursor: 'pointer'}}></circle>
     <image x={x} y="5" width="20" height="20" preserveAspectRatio="none" href={avatarUrl} ></image>
-    <text x={x + 30} y="15" width="20" height="20" fill="#000000" stroke-width="2" font="14px">
-      <tspan dy="5">{message}</tspan>
-    </text>
+    <Message x={x + 30} refs={refs.join(' ')} color={color}>{message}</Message>
   </g>
 };
 
