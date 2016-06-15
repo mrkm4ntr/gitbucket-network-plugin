@@ -8,8 +8,8 @@
     "build": "webpack",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "mrkm4ntr",
+  "license": "MIT",
   "dependencies": {
     "react": "^15.1.0",
     "react-bootstrap": "^0.29.4",
@@ -26,5 +26,6 @@
     "babel-preset-stage-0": "^6.5.0",
     "webpack": "^1.13.1",
     "webpack-dev-server": "^1.14.1"
-  }
+  },
+  "private": true
 }
