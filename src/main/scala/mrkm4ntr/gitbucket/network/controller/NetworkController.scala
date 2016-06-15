@@ -25,10 +25,6 @@ class NetworkController extends NetworkControllerBase
 trait NetworkControllerBase extends ControllerBase {
   self: RepositoryService with AccountService with ReferrerAuthenticator with RequestCache =>
 
-  before("*/*/network/commits") {
-    contentType = formats("json")
-  }
-
   get("/:owner/:repository/network")(referrersOnly { repository =>
     html.network(repository)
   })
@@ -48,59 +44,62 @@ trait NetworkControllerBase extends ControllerBase {
     }
   }
 
-  get("/:owner/:repository/network/commits")(referrersOnly { repository =>
-    using(Git.open(getRepositoryDir(repository.owner, repository.name))) { git =>
+  get("/:owner/:repository/network/commits") {
+    contentType = formats("json")
+    referrersOnly { repository =>
+      using(Git.open(getRepositoryDir(repository.owner, repository.name))) { git =>
 
-      @tailrec
-      def traverse(plotCommitList: List[(PlotCommit[PlotLane], Int)],
-                   nextCommitDate: Option[Date],
-                   maxLane: Int,
-                   result: List[Commit]): (Int, List[Commit]) = {
-        plotCommitList match {
-          case Nil => (maxLane, result)
-          case (plotCommit, index) :: tail => {
-            val (month, day) = getDateMarker(plotCommit.getCommitterIdent.getWhen, nextCommitDate)
-            traverse(tail,
-              Some(plotCommit.getCommitterIdent.getWhen),
-              maxLane max plotCommit.getLane.getPosition,
-              Commit(
-                index,
-                plotCommit.getLane.getPosition,
-                plotCommit.getParents.toList.map { revCommit =>
-                  tail.find { case (p, i) => p.getId == revCommit.getId } map { case (p, i) => Parent(i, p.getLane.getPosition) }
-                },
-                for (i <- Range(0, plotCommit.getRefCount)) yield getHeadOrTag(plotCommit.getRef(i).getName),
-                plotCommit.getId.getName,
-                plotCommit.getShortMessage,
-                getAvatarUrl(plotCommit.getAuthorIdent.getEmailAddress, 30),
-                month,
-                day
-              ) :: result
-            )
+        @tailrec
+        def traverse(plotCommitList: List[(PlotCommit[PlotLane], Int)],
+                     nextCommitDate: Option[Date],
+                     maxLane: Int,
+                     result: List[Commit]): (Int, List[Commit]) = {
+          plotCommitList match {
+            case Nil => (maxLane, result)
+            case (plotCommit, index) :: tail => {
+              val (month, day) = getDateMarker(plotCommit.getCommitterIdent.getWhen, nextCommitDate)
+              traverse(tail,
+                Some(plotCommit.getCommitterIdent.getWhen),
+                maxLane max plotCommit.getLane.getPosition,
+                Commit(
+                  index,
+                  plotCommit.getLane.getPosition,
+                  plotCommit.getParents.toList.map { revCommit =>
+                    tail.find { case (p, i) => p.getId == revCommit.getId } map { case (p, i) => Parent(i, p.getLane.getPosition) }
+                  },
+                  for (i <- Range(0, plotCommit.getRefCount)) yield getHeadOrTag(plotCommit.getRef(i).getName),
+                  plotCommit.getId.getName,
+                  plotCommit.getShortMessage,
+                  getAvatarUrl(plotCommit.getAuthorIdent.getEmailAddress, 30),
+                  month,
+                  day
+                ) :: result
+              )
+            }
           }
         }
-      }
 
-      val currentBranch = params.get("branch")
-      val count = params.getOrElse("count", "100").toInt
-      val repo = git.getRepository
-      val revWalk = new PlotWalk(repo)
-      revWalk.sort(RevSort.COMMIT_TIME_DESC)
-      try {
-        currentBranch match {
-          case Some(branch) => revWalk.markStart(revWalk.parseCommit(repo.resolve(branch)))
-          case _ => revWalk.markStart(repository.branchList.map(repo.resolve(_)).map(revWalk.parseCommit(_)).asJava)
+        val currentBranch = params.get("branch")
+        val count = params.getOrElse("count", "100").toInt
+        val repo = git.getRepository
+        val revWalk = new PlotWalk(repo)
+        revWalk.sort(RevSort.COMMIT_TIME_DESC)
+        try {
+          currentBranch match {
+            case Some(branch) => revWalk.markStart(revWalk.parseCommit(repo.resolve(branch)))
+            case _ => revWalk.markStart(repository.branchList.map(repo.resolve(_)).map(revWalk.parseCommit(_)).asJava)
+          }
+          val plotCommitList = new PlotCommitList[PlotLane]
+          plotCommitList.source(revWalk)
+          plotCommitList.fillTo(count)
+          val result = traverse(plotCommitList.asScala.zipWithIndex.toList, None, 0, Nil)
+          Data(result._1, result._2.reverse, repository.branchList, currentBranch)
+        } finally {
+          revWalk.dispose()
         }
-        val plotCommitList = new PlotCommitList[PlotLane]
-        plotCommitList.source(revWalk)
-        plotCommitList.fillTo(count)
-        val result = traverse(plotCommitList.asScala.zipWithIndex.toList, None, 0, Nil)
-        Data(result._1, result._2.reverse, repository.branchList, currentBranch)
-      } finally {
-        revWalk.dispose()
       }
     }
-  })
+  }
 
   def getDateMarker(date1: Date, date2: Option[Date]): (Option[Int], Option[Int]) = date2.map { date2 =>
     val dateTime1 = new DateTime(date1)
