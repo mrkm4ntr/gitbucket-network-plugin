@@ -82,6 +82,7 @@ trait NetworkControllerBase extends ControllerBase {
       }
 
       val currentBranch = params.get("branch")
+      val count = params.getOrElse("count", "100").toInt
       val repo = git.getRepository
       val revWalk = new PlotWalk(repo)
       revWalk.sort(RevSort.COMMIT_TIME_DESC)
@@ -92,7 +93,7 @@ trait NetworkControllerBase extends ControllerBase {
         }
         val plotCommitList = new PlotCommitList[PlotLane]
         plotCommitList.source(revWalk)
-        plotCommitList.fillTo(100)
+        plotCommitList.fillTo(count)
         val result = traverse(plotCommitList.asScala.zipWithIndex.toList, None, 0, Nil)
         Data(result._1, result._2.reverse, repository.branchList, currentBranch)
       } finally {

@@ -9,7 +9,7 @@ export default class Message extends React.Component {
   }
 
   shouldComponentUpdate(nextProp, nextState) {
-    return nextState.refsWidth !== this.state.refsWidth;
+    return nextProp.x !== this.props.x || nextState.refsWidth !== this.state.refsWidth;
   }
 
   render() {

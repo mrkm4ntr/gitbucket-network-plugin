@@ -17,19 +17,37 @@ export default class App extends React.Component {
       commits: [],
       branches: [],
       currentBranch: App.allBranchName,
-      isFetching: true
+      isFetching: true,
+      count: 100
     };
   }
 
-  fetchData(key) {
+  selectBranch(branch) {
+    const params = { count: this.state.count };
+    if (branch !== App.allBranchName) {
+      params.branch = branch;
+    }
+    this.fetchData(params);
+  }
+
+  selectCount(count) {
+    const params = { count: count };
+    if (this.state.currentBranch !== App.allBranchName) {
+      params.branch = this.state.currentBranch;
+    }
+    this.fetchData(params);
+  }
+
+  fetchData(params) {
+    const query = Object.keys(params).map(k => `${k}=${params[k]}`).join('&');
     this.setState(Object.assign({}, this.state, { isFetching: true }));
-    const query = (key && key !== App.allBranchName) ? `?branch=${key}` : '' 
-    fetch(`./network/commits${query}`).then(
+    fetch(`./network/commits?${query}`).then(
       r => r.json()
     ).then(data => {
       data.branches.push(App.allBranchName);
       if (!data.currentBranch)
         data.currentBranch = App.allBranchName;
+      data.count = params.count
       data.isFetching = false;
       this.setState(data);
     }).catch(e => {
@@ -39,15 +57,28 @@ export default class App extends React.Component {
   }
 
   componentDidMount() {
-    this.fetchData();
+    this.fetchData({ count: 100 });
   }
 
   render () {
     return (
       <div style={{marginLeft: '20px'}}>
-        <DropdownButton id={'branchSwitcher'} title={`branch:${this.state.currentBranch}`} onSelect={this.fetchData.bind(this)} style={{marginBottom: '10px'}}>
+        <DropdownButton
+          id="branchSelector"
+          title={`branch:${this.state.currentBranch}`}
+          onSelect={this.selectBranch.bind(this)}
+          style={{marginBottom: '10px'}}>
           {this.state.branches.map(branch =>
             <MenuItem key={branch} eventKey={branch}>{branch}</MenuItem>
+          )}
+        </DropdownButton>
+        <DropdownButton
+          id="countSelector"
+          title={`commits:${this.state.count}`}
+          onSelect={this.selectCount.bind(this)}
+          style={{margin: '0 0 10px 10px'}}>
+          {[100, 500, 1000].map(count =>
+            <MenuItem key={count} eventKey={count}>{count}</MenuItem>
           )}
         </DropdownButton>
         <div style={{border: 'solid 1px #ccc', position: 'relative'}}>
