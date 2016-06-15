@@ -1,5 +1,6 @@
 import React from 'react';
-import { DropdownButton, MenuItem } from 'react-bootstrap'
+import DropdownButton from 'react-bootstrap/lib/DropdownButton'
+import MenuItem from 'react-bootstrap/lib/MenuItem'
 import CommitGraph from './CommitGraph';
 
 export default class App extends React.Component {
