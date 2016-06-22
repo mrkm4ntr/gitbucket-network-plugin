@@ -41,7 +41,7 @@ export default class App extends React.Component {
   fetchData(params) {
     const query = Object.keys(params).map(k => `${k}=${params[k]}`).join('&');
     this.setState(Object.assign({}, this.state, { isFetching: true }));
-    fetch(`./network/commits?${query}`).then(
+    fetch(`./network/commits?${query}`, { credentials: 'include' }).then(
       r => r.json()
     ).then(data => {
       data.branches.push(App.allBranchName);
