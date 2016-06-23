@@ -27,7 +27,7 @@ const Commit = ({ maxLane, index, lane, message, parents, id, avatarUrl, refs, m
     })}
     <rect x={x} y="5" width="20" height="20" stroke={color} fill="none" stroke-width="2"></rect>
     <circle cx={lane * 15 + 10} cy="15" r="3" stroke={color} fill={color} onClick={() => {window.open(`./commit/${id}`, '_blank')}} style={{cursor: 'pointer'}}></circle>
-    <image x={x} y="5" width="20" height="20" preserveAspectRatio="none" href={avatarUrl} ></image>
+    <image x={x} y="5" width="20" height="20" preserveAspectRatio="none" xlinkHref={avatarUrl} ></image>
     <Message x={x + 30} refs={refs.join(' ')} color={color}>{message}</Message>
   </g>
 };
