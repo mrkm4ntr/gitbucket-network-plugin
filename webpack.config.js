@@ -3,7 +3,7 @@
 var webpack = require('webpack');
 
 module.exports = {
-  entry: './scripts/index.js',
+  entry: ['babel-polyfill', './scripts/index.js'],
   output: {
     path: __dirname,
     filename: 'src/main/resources/mrkm4ntr/gitbucket/network/controller/bundle.js'
@@ -12,10 +12,9 @@ module.exports = {
     loaders: [
       {
         exclude: /(node_modules|bower_components)/,
-        loader: 'babel', // 'babel-loader' is also a legal name to reference
+        loader: 'babel',
         query: {
-          presets: ['stage-0', 'es2015', 'react'],
-          plugins: ['transform-object-assign']
+          presets: ['stage-0', 'es2015', 'react']
         }
       }
     ]
