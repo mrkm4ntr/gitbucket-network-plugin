@@ -1,6 +1,9 @@
 'use strict';
 
 var webpack = require('webpack');
+var babelSettings = {
+  presets: ['stage-0', 'es2015', 'react']
+};
 
 module.exports = {
   entry: ['babel-polyfill', './scripts/index.js'],
@@ -12,10 +15,7 @@ module.exports = {
     loaders: [
       {
         exclude: /(node_modules|bower_components)/,
-        loader: 'babel',
-        query: {
-          presets: ['stage-0', 'es2015', 'react']
-        }
+        loaders: ['babel?' + JSON.stringify(babelSettings), 'eslint-loader']
       }
     ]
   },
