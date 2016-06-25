@@ -1,4 +1,4 @@
-# gitbucket-network-plugin
+# gitbucket-network-plugin [![Build Status](https://travis-ci.org/mrkm4ntr/gitbucket-network-plugin.svg?branch=master)](https://travis-ci.org/mrkm4ntr/gitbucket-network-plugin)
 
 This plugin provides network graph for [GitBucket](https://github.com/gitbucket/gitbucket).
 
