@@ -1,7 +1,15 @@
-language: node_js
-node_js:
-  - "4"
+language: scala
+scala:
+  - 2.11.8
+jdk:
+  - oraclejdk8
+env:
+  - TRAVIS_NODE_VERSION="4"
 install:
-  - "npm install"
+  - ~/.nvm/nvm.sh
+  - nvm install $TRAVIS_NODE_VERSION
+  - nvm use $TRAVIS_NODE_VERSION
+  - npm install
 script: 
-  - "npm test"
+  - npm test
+  - sbt test
