@@ -6,7 +6,8 @@
   "scripts": {
     "server": "webpack-dev-server",
     "build": "webpack",
-    "test": "find ./test/ -name '*.spec.js' | xargs mocha"
+    "test": "find ./test/ -name '*.spec.js' | xargs mocha",
+    "coverage": "find ./test/ -name '*.spec.js' | xargs nyc _mocha"
   },
   "author": "mrkm4ntr",
   "license": "MIT",
@@ -35,6 +36,7 @@
     "eslint-plugin-react": "^5.2.2",
     "jsdom": "^9.2.1",
     "mocha": "^2.5.3",
+    "nyc": "^6.6.1",
     "power-assert": "^1.4.1",
     "react-addons-test-utils": "^15.1.0",
     "sinon": "^1.17.4",
