@@ -47,7 +47,7 @@ export default class App extends React.Component {
   fetchData(params) {
     const query = Object.keys(params).map(k => `${k}=${params[k]}`).join('&');
     this.setState(Object.assign({}, this.state, { isFetching: true }));
-    fetch(`./network/commits?${query}`, { credentials: 'include' }).then(
+    return window.fetch(`./network/commits?${query}`, { credentials: 'include' }).then(
       r => r.json()
     ).then(data => {
       const newState = Object.assign({ count: params.count, isFetching: false }, data);

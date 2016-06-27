@@ -6,7 +6,7 @@
   "scripts": {
     "server": "webpack-dev-server",
     "build": "webpack",
-    "test": "find ./test/ -name '*.spec.js' | xargs mocha -R spec"
+    "test": "find ./test/ -name '*.spec.js' | xargs mocha"
   },
   "author": "mrkm4ntr",
   "license": "MIT",
@@ -37,6 +37,7 @@
     "mocha": "^2.5.3",
     "power-assert": "^1.4.1",
     "react-addons-test-utils": "^15.1.0",
+    "sinon": "^1.17.4",
     "webpack": "^1.13.1",
     "webpack-dev-server": "^1.14.1"
   },
