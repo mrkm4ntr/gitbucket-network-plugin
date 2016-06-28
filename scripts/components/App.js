@@ -59,7 +59,7 @@ export default class App extends React.Component {
     })
     .catch(e => {
       this.setState(Object.assign(this.state, { isFetching: false }));
-      alert(e);
+      window.alert(e);
     });
   }
 

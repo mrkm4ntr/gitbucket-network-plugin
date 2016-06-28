@@ -22,6 +22,20 @@ describe('App', () => {
     assert(wrapper.state('commits').length === 0);
   });
 
+  it('passes selectBranch to branchSelector', () => {
+    const wrapper = shallow(<App />);
+    const branchSelector = wrapper.find('#branchSelector');
+    const selectBranch = wrapper.instance().selectBranch;
+    assert(branchSelector.prop('onSelect') === selectBranch);
+  });
+
+  it('passes selectCount to countSelector', () => {
+    const wrapper = shallow(<App />);
+    const countSelector = wrapper.find('#countSelector');
+    const selectCount = wrapper.instance().selectCount;
+    assert(countSelector.prop('onSelect') === selectCount);
+  });
+
   it('can fetch data', () => {
     const stub = sinon.stub(window, 'fetch');
     stub.returns(Promise.resolve(new window.Response(JSON.stringify({}), {
@@ -43,4 +57,38 @@ describe('App', () => {
       window.fetch.restore()
     });
   });
+
+  it('can notify error when fail to fetch data ', () => {
+    const stub = sinon.stub(window, 'fetch');
+    stub.returns(Promise.reject('error'));
+    const mock = sinon.mock(window, 'alert');
+    mock.expects('alert').withArgs('error');
+
+    const wrapper = shallow(<App />);
+    return wrapper.instance().fetchData({}).then(() => {
+      assert(wrapper.state('isFetching') === false);
+      assert(mock.verify());
+
+      window.fetch.restore();
+    });
+  });
+
+  it('can select branch', () => {
+    const wrapper = shallow(<App />);
+    const instance = wrapper.instance();
+    const mock = sinon.mock(instance);
+    mock.expects('fetchData').withArgs({ branch: 'bar', count: wrapper.state('count') });
+    instance.selectBranch('bar');
+    assert(mock.verify());
+  });
+
+  it('can select count', () => {
+    const wrapper = shallow(<App />);
+    const instance = wrapper.instance();
+    const mock = sinon.mock(instance);
+    mock.expects('fetchData').withArgs({ count: 1000 });
+    instance.selectCount(1000);
+    assert(mock.verify());
+  });
+
 });
