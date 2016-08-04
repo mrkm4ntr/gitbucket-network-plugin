@@ -25,6 +25,8 @@ class Plugin extends gitbucket.core.plugin.Plugin {
     "/*" -> new NetworkController
   )
 
+  override val assetsMappings = Seq("/network" -> "/plugins/network/assets")
+
   override val repositoryMenus = Seq(
     (repositoryInfo: RepositoryInfo, context: Context) => Some(Link("network", "Network", "/network", Some("circuit-board")))
   )

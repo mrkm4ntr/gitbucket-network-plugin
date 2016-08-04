@@ -9,7 +9,7 @@ module.exports = {
   entry: ['babel-polyfill', './scripts/index.js'],
   output: {
     path: __dirname,
-    filename: 'src/main/resources/mrkm4ntr/gitbucket/network/controller/bundle.js'
+    filename: 'src/main/resources/plugins/network/assets/bundle.js'
   },
   module: {
     loaders: [

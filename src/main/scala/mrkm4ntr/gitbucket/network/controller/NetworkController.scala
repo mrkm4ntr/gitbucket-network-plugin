@@ -29,21 +29,6 @@ trait NetworkControllerBase extends ControllerBase {
     html.network(repository)
   })
 
-  get("/assets/plugins/network/bundle.js") {
-    contentType = "text/javascript"
-    val uri = getClass().getResource("bundle.js").toString()
-    val tmp = uri.split("!")
-    try {
-      val fs = FileSystems.getFileSystem(URI.create(tmp(0)))
-      new String(Files.readAllBytes(fs.getPath(tmp(1))))
-    } catch {
-      case e: FileSystemNotFoundException => {
-        val fs = FileSystems.newFileSystem(URI.create(tmp(0)), new util.HashMap[String, String]())
-        new String(Files.readAllBytes(fs.getPath(tmp(1))))
-      }
-    }
-  }
-
   get("/:owner/:repository/network/commits") {
     contentType = formats("json")
     referrersOnly { repository =>
