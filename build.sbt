@@ -1,6 +1,6 @@
 val Organization = "com.github.mrkm4ntr"
 val Name = "gitbucket-network-plugin"
-val Version = "1.1"
+val Version = "1.2−SNAPSHOT"
 
 lazy val root = (project in file(".")).enablePlugins(SbtTwirl)
 
@@ -14,7 +14,7 @@ resolvers ++= Seq(
 )
 
 libraryDependencies ++= Seq(
-  "gitbucket" % "gitbucket-assembly" % "4.0.0" % "provided",
+  "gitbucket" % "gitbucket-assembly" % "4.3.0" % "provided",
   "com.typesafe.play" %% "twirl-compiler" % "1.0.4" % "provided",
   "javax.servlet" % "javax.servlet-api" % "3.1.0" % "provided"
 )
