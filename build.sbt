@@ -9,12 +9,8 @@ name := Name
 version := Version
 scalaVersion := "2.11.8"
 
-resolvers ++= Seq(
-  "amateras-repo" at "http://amateras.sourceforge.jp/mvn/"
-)
-
 libraryDependencies ++= Seq(
-  "gitbucket" % "gitbucket-assembly" % "4.3.0" % "provided",
+  "io.github.gitbucket" %% "gitbucket" % "4.9.0" % "provided",
   "com.typesafe.play" %% "twirl-compiler" % "1.0.4" % "provided",
   "javax.servlet" % "javax.servlet-api" % "3.1.0" % "provided"
 )
