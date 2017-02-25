@@ -9,6 +9,10 @@ name := Name
 version := Version
 scalaVersion := "2.11.8"
 
+resolvers ++= Seq(
+  Resolver.jcenterRepo
+)
+
 libraryDependencies ++= Seq(
   "io.github.gitbucket" %% "gitbucket" % "4.9.0" % "provided",
   "com.typesafe.play" %% "twirl-compiler" % "1.0.4" % "provided",
