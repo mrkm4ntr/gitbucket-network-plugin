@@ -16,7 +16,9 @@ class Plugin extends gitbucket.core.plugin.Plugin {
   override val versions: Seq[Version] = Seq(
     new Version("1.0"),
     new Version("1.1"),
-    new Version("1.2-SNAPSHOT")
+    new Version("1.2-SNAPSHOT"),
+    new Version("1.2"),
+    new Version("1.3")
   )
 
   override val description: String = "Provides Network feature on Gitbucket."

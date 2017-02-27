@@ -1,6 +1,6 @@
 val Organization = "com.github.mrkm4ntr"
 val Name = "gitbucket-network-plugin"
-val Version = "1.2"
+val Version = "1.3"
 
 lazy val root = (project in file(".")).enablePlugins(SbtTwirl)
 
