@@ -1,6 +1,6 @@
 language: scala
 scala:
-  - 2.11.8
+  - 2.12.1
 jdk:
   - oraclejdk8
 env:
@@ -20,7 +20,7 @@ deploy:
   provider: releases
   api_key:
     secure: bxMa8PqRaO/pnakmfw10gDJyCWiHxr0GOcViwWacD3236mKGQlbOKgYR8MmqqaaBBukjyKvlTwrFAIZq+MZgS1fKnlZJC/dX6we5T+8F0KRmBoqrrGiZkl6296trFHKfgpwQhLT+H/Vyl+MvcEr95TP1yJ5Kt3Te57NJhr3zI0HuJIyWub1Krumdl99Fx9Q2ZQw52wX8rmT6Vy8ZO5swAkrz3AUTbZtSF0lQ0t5Rd/nie61KCX2UVod+ybohyEqZeixmpgw5xDlACuUhNBR0tvG6zGBlFHfB69T8QC7ZxaaDlfzyk4Im33MIsaueQI72N79bm2E+7JHHnAATbHKiFVcGTHtE3KG93UjSMbZOGKHOypw2mMTkcWewKS607PZISgJn6PTCDykBvCznzzr02hoh68l9touXtQDDyRnFXto1VZc+sIoytsdkII1VRt3TEwf0QoHXvLh7BaNr2rejmw5FM5gmEvmraQuZ/jrrR98Iq9yo8iKF+H63NMAWVJKmpg3+3rGEqidVOXlrHurLbLc98VpyE3/WS6N/rNa05mB7oIjb2O9VKQwh4ltdLx0d0+fdWMxEEGJyp3cfyQUIsf46YO31azLceYxOYxty/vU6EK3eS+/7XfB/Npx5DHROqJXiGrA60F65xDir5PaeXyMHXW4U+I4Pw7as+ilD7rQ=
-  file: target/scala-2.11/gitbucket-network-plugin*.jar
+  file: target/scala-*/gitbucket-network-plugin*.jar
   file_glob: true
   on:
     tags: true
