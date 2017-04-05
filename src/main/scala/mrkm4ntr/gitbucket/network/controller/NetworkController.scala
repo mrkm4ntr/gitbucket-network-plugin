@@ -9,7 +9,7 @@ import gitbucket.core.controller.{Context, ControllerBase}
 import gitbucket.core.service.{AccountService, RepositoryService, RequestCache}
 import gitbucket.core.util.{ReferrerAuthenticator, StringUtil}
 import gitbucket.core.util.Directory._
-import gitbucket.core.util.ControlUtil._
+import gitbucket.core.util.SyntaxSugars._
 import mrkm4ntr.gitbucket.html
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.revplot.{PlotCommit, PlotCommitList, PlotLane, PlotWalk}
