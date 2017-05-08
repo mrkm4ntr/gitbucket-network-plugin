@@ -86,7 +86,7 @@ describe('App', () => {
     const wrapper = shallow(<App />);
     const instance = wrapper.instance();
     const mock = sinon.mock(instance);
-    mock.expects('fetchData').withArgs({ count: 1000 });
+    mock.expects('fetchData').withArgs({ all: 1, count: 1000 });
     instance.selectCount(1000);
     assert(mock.verify());
   });

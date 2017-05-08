@@ -7,7 +7,11 @@ import 'whatwg-fetch';
 export default class App extends React.Component {
 
   static get allBranchName() {
-    return 'all branches';
+    return 'All Branches';
+  }
+
+  static get defaultBranchName() {
+    return 'Default Branch';
   }
 
   constructor(props) {
@@ -28,19 +32,28 @@ export default class App extends React.Component {
     this.fetchData({ count: 100 });
   }
 
-  selectBranch(branch) {
-    const params = { count: this.state.count };
-    if (branch !== App.allBranchName) {
-      params.branch = branch;
+  setParams(branchName, params) {
+    const returnParams = params;
+    switch (branchName) {
+      case App.allBranchName:
+        returnParams.all = 1;
+        break;
+      case App.defaultBranchName:
+        returnParams.branch = this.state.defaultBranch;
+        break;
+      default:
+        returnParams.branch = branchName;
     }
+    return returnParams;
+  }
+
+  selectBranch(branch) {
+    const params = this.setParams(branch, { count: this.state.count });
     this.fetchData(params);
   }
 
   selectCount(count) {
-    const params = { count };
-    if (this.state.currentBranch !== App.allBranchName) {
-      params.branch = this.state.currentBranch;
-    }
+    const params = this.setParams(this.state.currentBranch, { count });
     this.fetchData(params);
   }
 
@@ -51,8 +64,7 @@ export default class App extends React.Component {
       r => r.json()
     ).then(data => {
       const newState = Object.assign({ count: params.count, isFetching: false }, data);
-      newState.branches.push(App.allBranchName);
-      if (!data.currentBranch) {
+      if (data.all) {
         newState.currentBranch = App.allBranchName;
       }
       this.setState(newState);
@@ -72,6 +84,13 @@ export default class App extends React.Component {
           onSelect={this.selectBranch}
           style={{ marginBottom: '10px' }}
         >
+          <MenuItem key={App.allBranchName} eventKey={App.allBranchName}>
+            {App.allBranchName}
+          </MenuItem>
+          <MenuItem key={App.defaultBranchName} eventKey={App.defaultBranchName}>
+            {App.defaultBranchName}
+          </MenuItem>
+          <MenuItem divider />
           {this.state.branches.map(branch =>
             <MenuItem key={branch} eventKey={branch}>{branch}</MenuItem>
           )}

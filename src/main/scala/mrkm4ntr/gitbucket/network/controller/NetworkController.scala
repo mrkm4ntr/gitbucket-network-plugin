@@ -64,21 +64,23 @@ trait NetworkControllerBase extends ControllerBase {
           }
         }
 
-        val currentBranch = params.get("branch")
+        val allBranches = params.get("all")
+        val currentBranch = params.getOrElse("branch", repository.repository.defaultBranch)
         val count = params.getOrElse("count", "100").toInt
         val repo = git.getRepository
         val revWalk = new PlotWalk(repo)
         revWalk.sort(RevSort.COMMIT_TIME_DESC)
         try {
-          currentBranch match {
-            case Some(branch) => revWalk.markStart(revWalk.parseCommit(repo.resolve(branch)))
-            case _ => revWalk.markStart(repository.branchList.map(repo.resolve(_)).map(revWalk.parseCommit(_)).asJava)
+	  if(allBranches != None) {
+            revWalk.markStart(repository.branchList.map(repo.resolve(_)).map(revWalk.parseCommit(_)).asJava)
+          } else {
+            revWalk.markStart(revWalk.parseCommit(repo.resolve(currentBranch)))
           }
           val plotCommitList = new PlotCommitList[PlotLane]
           plotCommitList.source(revWalk)
           plotCommitList.fillTo(count)
           val result = traverse(plotCommitList.asScala.zipWithIndex.toList, None, 0, Nil)
-          Data(result._1, result._2.reverse, repository.branchList, currentBranch)
+          Data(result._1, result._2.reverse, repository.branchList, currentBranch, repository.repository.defaultBranch, allBranches)
         } finally {
           revWalk.dispose()
         }
@@ -136,7 +138,9 @@ case class Data(
   maxLane: Int,
   commits: Seq[Commit],
   branches: Seq[String],
-  currentBranch: Option[String])
+  currentBranch: String,
+  defaultBranch: String,
+  all: Option[String])
 
 case class Commit(
   index: Int,
