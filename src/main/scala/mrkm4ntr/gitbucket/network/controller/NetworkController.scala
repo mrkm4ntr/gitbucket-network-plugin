@@ -4,6 +4,8 @@ import java.net.URI
 import java.nio.file._
 import java.util
 import java.util.Date
+import java.time._
+import java.time.temporal.ChronoUnit 
 
 import gitbucket.core.controller.{Context, ControllerBase}
 import gitbucket.core.service.{AccountService, RepositoryService, RequestCache}
@@ -14,8 +16,8 @@ import mrkm4ntr.gitbucket.html
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.revplot.{PlotCommit, PlotCommitList, PlotLane, PlotWalk}
 import org.eclipse.jgit.revwalk.RevSort
-import org.joda.time._
 
+import org.json4s.jackson.Serialization
 import scala.annotation.tailrec
 import scala.collection.JavaConverters._
 
@@ -71,7 +73,7 @@ trait NetworkControllerBase extends ControllerBase {
         val revWalk = new PlotWalk(repo)
         revWalk.sort(RevSort.COMMIT_TIME_DESC)
         try {
-	  if(allBranches != None) {
+          if(allBranches != None) {
             revWalk.markStart(repository.branchList.map(repo.resolve(_)).map(revWalk.parseCommit(_)).asJava)
           } else {
             revWalk.markStart(revWalk.parseCommit(repo.resolve(currentBranch)))
@@ -80,7 +82,7 @@ trait NetworkControllerBase extends ControllerBase {
           plotCommitList.source(revWalk)
           plotCommitList.fillTo(count)
           val result = traverse(plotCommitList.asScala.zipWithIndex.toList, None, 0, Nil)
-          Data(result._1, result._2.reverse, repository.branchList, currentBranch, repository.repository.defaultBranch, allBranches)
+          Serialization.write(Data(result._1, result._2.reverse, repository.branchList, currentBranch, repository.repository.defaultBranch, allBranches))(jsonFormats)
         } finally {
           revWalk.dispose()
         }
@@ -89,26 +91,22 @@ trait NetworkControllerBase extends ControllerBase {
   }
 
   def getDateMarker(date1: Date, date2: Option[Date]): (Option[Int], Option[Int]) = date2.map { date2 =>
-    val dateTime1 = new DateTime(date1)
-    val dateTime2 = new DateTime(date2)
-    val day = if (Days.daysBetween(
-      new LocalDate(dateTime1.getYear, dateTime1.getMonthOfYear, dateTime1.getDayOfMonth),
-      new LocalDate(dateTime2.getYear, dateTime2.getMonthOfYear, dateTime2.getDayOfMonth)).getDays > 0) {
+    val dateTime1 = LocalDateTime.ofInstant(date1.toInstant(), ZoneId.systemDefault())
+    val dateTime2 = LocalDateTime.ofInstant(date2.toInstant(), ZoneId.systemDefault())
+    val day = if (ChronoUnit.DAYS.between(dateTime1, dateTime2) > 0) {
       Some(dateTime1.getDayOfMonth)
     } else {
       None
     }
-    val month = if (Months.monthsBetween(
-      new YearMonth(dateTime1.getYear, dateTime1.getMonthOfYear),
-      new YearMonth(dateTime2.getYear, dateTime2.getMonthOfYear)).getMonths > 0) {
-      Some(dateTime1.getMonthOfYear)
+    val month = if (ChronoUnit.MONTHS.between(dateTime1, dateTime2) > 0) {
+      Some(dateTime1.getMonthValue)
     } else {
       None
     }
     (month, day)
   } getOrElse {
-    val dateTime1 = new DateTime(date1)
-    (Some(dateTime1.getMonthOfYear), Some(dateTime1.getDayOfMonth))
+    val dateTime1 = LocalDateTime.ofInstant(date1.toInstant(), ZoneId.systemDefault())
+    (Some(dateTime1.getMonthValue), Some(dateTime1.getDayOfMonth))
   }
 
   def getAvatarUrl(mailAddress: String, size: Int)(implicit context: Context): String = {
