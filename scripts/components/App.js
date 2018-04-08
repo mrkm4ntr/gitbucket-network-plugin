@@ -2,6 +2,7 @@ import React from 'react';
 import DropdownButton from 'react-bootstrap/lib/DropdownButton';
 import MenuItem from 'react-bootstrap/lib/MenuItem';
 import CommitGraph from './CommitGraph';
+import FormControl from 'react-bootstrap/lib/FormControl';
 import 'whatwg-fetch';
 
 export default class App extends React.Component {
@@ -75,6 +76,30 @@ export default class App extends React.Component {
     });
   }
 
+  stopPropagation(e) {
+    console.log(e.target.value);
+    e.preventDefault();
+    e.stopPropagation();
+  }
+
+  doFilter(e) {
+    const branchFilter = $(e.target);
+    const inputVal = branchFilter.val();
+    $.each(
+      branchFilter.parent().parent().parent()
+      .find('a'),
+        (index, elem) => {
+          if (!inputVal ||
+            !elem.text.trim() ||
+            elem.text.trim().toLowerCase().indexOf(inputVal.toLowerCase()) >= 0) {
+            $(elem).parent().show();
+          } else {
+            $(elem).parent().hide();
+          }
+        }
+    );
+  }
+
   render() {
     return (
       <div style={{ marginLeft: '20px' }}>
@@ -89,6 +114,15 @@ export default class App extends React.Component {
           </MenuItem>
           <MenuItem key={App.defaultBranchName} eventKey={App.defaultBranchName}>
             {App.defaultBranchName}
+          </MenuItem>
+          <MenuItem>
+            <FormControl
+              type="text"
+              value={this.state.value}
+              placeholder="Find branch..."
+              onClick={this.stopPropagation}
+              onKeyUp={this.doFilter}
+            />
           </MenuItem>
           <MenuItem divider />
           {this.state.branches.map(branch =>
