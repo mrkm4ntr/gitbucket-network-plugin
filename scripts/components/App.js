@@ -19,6 +19,8 @@ export default class App extends React.Component {
     super(props);
     this.selectBranch = this.selectBranch.bind(this);
     this.selectCount = this.selectCount.bind(this);
+    this.clearFilter = this.clearFilter.bind(this);
+    this.changeFilter = this.changeFilter.bind(this);
     this.state = {
       maxLane: 0,
       commits: [],
@@ -26,6 +28,8 @@ export default class App extends React.Component {
       currentBranch: App.allBranchName,
       isFetching: true,
       count: 100,
+      displayCount: 100,
+      filter: '',
     };
   }
 
@@ -49,6 +53,7 @@ export default class App extends React.Component {
   }
 
   selectBranch(branch) {
+    if (branch.startsWith('.')) return;
     const params = this.setParams(branch, { count: this.state.count });
     this.fetchData(params);
   }
@@ -64,7 +69,12 @@ export default class App extends React.Component {
     return window.fetch(`./network/commits?${query}`, { credentials: 'include' }).then(
       r => r.json()
     ).then(data => {
-      const newState = Object.assign({ count: params.count, isFetching: false }, data);
+      const newState = Object.assign({ count: params.count, isFetching: false },
+                                     data,
+                                     { branches: data.branches.map(
+                                         branch => ({ branch, visible: true })) },
+                                     { displayCount: data.branches.length }
+                                    );
       if (data.all) {
         newState.currentBranch = App.allBranchName;
       }
@@ -82,22 +92,32 @@ export default class App extends React.Component {
     e.stopPropagation();
   }
 
-  doFilter(e) {
-    const branchFilter = $(e.target);
-    const inputVal = branchFilter.val();
-    $.each(
-      branchFilter.parent().parent().parent()
-      .find('a'),
-        (index, elem) => {
-          if (!inputVal ||
-            !elem.text.trim() ||
-            elem.text.trim().toLowerCase().indexOf(inputVal.toLowerCase()) >= 0) {
-            $(elem).parent().show();
-          } else {
-            $(elem).parent().hide();
-          }
-        }
-    );
+  changeFilter(e) {
+    this.filter(e.target.value);
+  }
+
+  clearFilter(e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    this.filter('');
+  }
+
+  filter(value) {
+    this.setState(Object.assign(this.state, { filter: value }));
+
+    this.setState(Object.assign(this.state, {
+      branches: this.state.branches.map(({ branch }) => ({
+        branch,
+        visible: this.state.filter ?
+                 branch.toLowerCase().indexOf(this.state.filter.toLowerCase()) >= 0 : true,
+      })),
+    }));
+
+    this.setState(Object.assign(this.state, {
+      displayCount: this.state.branches.reduce((prev, current) =>
+                                                 prev + (current.visible ? 1 : 0), 0),
+    }));
   }
 
   render() {
@@ -116,18 +136,26 @@ export default class App extends React.Component {
             {App.defaultBranchName}
           </MenuItem>
           <MenuItem>
-            <FormControl
-              type="text"
-              value={this.state.value}
-              placeholder="Find branch..."
-              onClick={this.stopPropagation}
-              onKeyUp={this.doFilter}
-            />
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <FormControl
+                type="text" placeholder="Find branch..."
+                style={{ width: '90%' }}
+                value={this.state.filter}
+                onClick={this.stopPropagation}
+                onChange={this.changeFilter}
+              />
+              <i
+                className="octicon octicon-x" style={{ display: 'flex' }}
+                onClick={this.clearFilter}
+              />
+            </div>
           </MenuItem>
           <MenuItem divider />
-          {this.state.branches.map(branch =>
+          {this.state.branches.filter(({ visible }) => visible).map(({ branch }) =>
             <MenuItem key={branch} eventKey={branch}>{branch}</MenuItem>
           )}
+          {this.state.displayCount === 0 ?
+            (<MenuItem eventKey=".">NO MATCHED BRANCH</MenuItem>) : (null)}
         </DropdownButton>
         <DropdownButton
           id="countSelector"
