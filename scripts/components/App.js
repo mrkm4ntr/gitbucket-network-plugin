@@ -87,7 +87,6 @@ export default class App extends React.Component {
   }
 
   stopPropagation(e) {
-    console.log(e.target.value);
     e.preventDefault();
     e.stopPropagation();
   }
@@ -129,28 +128,31 @@ export default class App extends React.Component {
           onSelect={this.selectBranch}
           style={{ marginBottom: '10px' }}
         >
+          <li><div id="branch-control-title">Switch branches</div></li>
           <MenuItem key={App.allBranchName} eventKey={App.allBranchName}>
             {App.allBranchName}
           </MenuItem>
           <MenuItem key={App.defaultBranchName} eventKey={App.defaultBranchName}>
             {App.defaultBranchName}
           </MenuItem>
-          <MenuItem>
+          <li>
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <FormControl
+                id="branch-control-input"
                 type="text" placeholder="Find branch..."
                 style={{ width: '90%' }}
+                className="input-sm dropdown-filter-input"
                 value={this.state.filter}
                 onClick={this.stopPropagation}
+                onSelect={this.stopPropagation}
                 onChange={this.changeFilter}
               />
               <i
-                className="octicon octicon-x" style={{ display: 'flex' }}
+                className="octicon octicon-x" style={{ display: 'flex', cursor: 'pointer' }}
                 onClick={this.clearFilter}
               />
             </div>
-          </MenuItem>
-          <MenuItem divider />
+          </li>
           {this.state.branches.filter(({ visible }) => visible).map(({ branch }) =>
             <MenuItem key={branch} eventKey={branch}>{branch}</MenuItem>
           )}
@@ -163,6 +165,12 @@ export default class App extends React.Component {
           onSelect={this.selectCount}
           style={{ margin: '0 0 10px 10px' }}
         >
+          <li>
+            <div
+              id="branch-control-title"
+              style={{ whiteSpace: 'nowrap' }}
+            >Switch num of commits</div>
+          </li>
           {[100, 500, 1000].map(count =>
             <MenuItem key={count} eventKey={count}>{count}</MenuItem>
           )}
