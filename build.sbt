@@ -7,16 +7,11 @@ lazy val root = (project in file(".")).enablePlugins(SbtTwirl)
 organization := Organization
 name := Name
 version := Version
-scalaVersion := "2.12.4"
+scalaVersion := "2.13.0"
+gitbucketVersion := "4.32.0"
 
 resolvers ++= Seq(
   Resolver.jcenterRepo
-)
-
-libraryDependencies ++= Seq(
-  "io.github.gitbucket" %% "gitbucket" % "4.19.0" % "provided",
-  "com.typesafe.play" %% "twirl-compiler" % "1.3.0" % "provided",
-  "javax.servlet" % "javax.servlet-api" % "3.1.0" % "provided"
 )
 
 scalacOptions := Seq("-deprecation", "-feature", "-language:postfixOps")

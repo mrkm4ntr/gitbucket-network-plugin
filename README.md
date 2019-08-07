@@ -12,6 +12,7 @@ Download jar file from [the release page](https://github.com/mrkm4ntr/gitbucket-
 
 Plugin version|GitBucket version
 :---|:---
+1.7|4.32.x
 1.6.x|4.26.x
 1.5|4.19.x
 1.4|4.11.x

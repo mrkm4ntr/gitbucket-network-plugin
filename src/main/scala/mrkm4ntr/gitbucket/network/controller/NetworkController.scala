@@ -19,7 +19,8 @@ import org.eclipse.jgit.revwalk.RevSort
 
 import org.json4s.jackson.Serialization
 import scala.annotation.tailrec
-import scala.collection.JavaConverters._
+import scala.jdk.CollectionConverters._
+import scala.util.Using
 
 class NetworkController extends NetworkControllerBase
   with RepositoryService with AccountService with ReferrerAuthenticator with RequestCache
@@ -34,7 +35,7 @@ trait NetworkControllerBase extends ControllerBase {
   get("/:owner/:repository/network/commits") {
     contentType = formats("json")
     referrersOnly { repository =>
-      using(Git.open(getRepositoryDir(repository.owner, repository.name))) { git =>
+      Using.resource(Git.open(getRepositoryDir(repository.owner, repository.name))) { git =>
 
         @tailrec
         def traverse(plotCommitList: List[(PlotCommit[PlotLane], Int)],
