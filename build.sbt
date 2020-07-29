@@ -8,7 +8,7 @@ organization := Organization
 name := Name
 version := Version
 scalaVersion := "2.13.0"
-gitbucketVersion := "4.32.0"
+gitbucketVersion := "4.34.0"
 
 resolvers ++= Seq(
   Resolver.jcenterRepo

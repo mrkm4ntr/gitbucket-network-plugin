@@ -1,17 +1,13 @@
 package mrkm4ntr.gitbucket.network.controller
 
-import java.net.URI
-import java.nio.file._
-import java.util
 import java.util.Date
 import java.time._
-import java.time.temporal.ChronoUnit 
+import java.time.temporal.ChronoUnit
 
 import gitbucket.core.controller.{Context, ControllerBase}
 import gitbucket.core.service.{AccountService, RepositoryService, RequestCache}
 import gitbucket.core.util.{ReferrerAuthenticator, StringUtil}
 import gitbucket.core.util.Directory._
-import gitbucket.core.util.SyntaxSugars._
 import mrkm4ntr.gitbucket.html
 import org.eclipse.jgit.api.Git
 import org.eclipse.jgit.revplot.{PlotCommit, PlotCommitList, PlotLane, PlotWalk}
@@ -44,7 +40,7 @@ trait NetworkControllerBase extends ControllerBase {
                      result: List[Commit]): (Int, List[Commit]) = {
           plotCommitList match {
             case Nil => (maxLane, result)
-            case (plotCommit, index) :: tail => {
+            case (plotCommit, index) :: tail =>
               val (month, day) = getDateMarker(plotCommit.getCommitterIdent.getWhen, nextCommitDate)
               traverse(tail,
                 Some(plotCommit.getCommitterIdent.getWhen),
@@ -53,7 +49,7 @@ trait NetworkControllerBase extends ControllerBase {
                   index,
                   plotCommit.getLane.getPosition,
                   plotCommit.getParents.toList.map { revCommit =>
-                    tail.find { case (p, i) => p.getId == revCommit.getId } map { case (p, i) => Parent(i, p.getLane.getPosition) }
+                    tail.find { case (p, _) => p.getId == revCommit.getId } map { case (p, i) => Parent(i, p.getLane.getPosition) }
                   },
                   for (i <- Range(0, plotCommit.getRefCount)) yield getHeadOrTag(plotCommit.getRef(i).getName),
                   plotCommit.getId.getName,
@@ -63,7 +59,6 @@ trait NetworkControllerBase extends ControllerBase {
                   day
                 ) :: result
               )
-            }
           }
         }
 
@@ -74,8 +69,8 @@ trait NetworkControllerBase extends ControllerBase {
         val revWalk = new PlotWalk(repo)
         revWalk.sort(RevSort.COMMIT_TIME_DESC)
         try {
-          if(allBranches != None) {
-            revWalk.markStart(repository.branchList.map(repo.resolve(_)).map(revWalk.parseCommit(_)).asJava)
+          if(allBranches.isDefined) {
+            revWalk.markStart(repository.branchList.map(repo.resolve).map(revWalk.parseCommit(_)).asJava)
           } else {
             revWalk.markStart(revWalk.parseCommit(repo.resolve(currentBranch)))
           }
@@ -92,8 +87,8 @@ trait NetworkControllerBase extends ControllerBase {
   }
 
   def getDateMarker(date1: Date, date2: Option[Date]): (Option[Int], Option[Int]) = date2.map { date2 =>
-    val dateTime1 = LocalDateTime.ofInstant(date1.toInstant(), ZoneId.systemDefault())
-    val dateTime2 = LocalDateTime.ofInstant(date2.toInstant(), ZoneId.systemDefault())
+    val dateTime1 = LocalDateTime.ofInstant(date1.toInstant, ZoneId.systemDefault())
+    val dateTime2 = LocalDateTime.ofInstant(date2.toInstant, ZoneId.systemDefault())
     val day = if (ChronoUnit.DAYS.between(dateTime1, dateTime2) > 0) {
       Some(dateTime1.getDayOfMonth)
     } else {
@@ -106,27 +101,27 @@ trait NetworkControllerBase extends ControllerBase {
     }
     (month, day)
   } getOrElse {
-    val dateTime1 = LocalDateTime.ofInstant(date1.toInstant(), ZoneId.systemDefault())
+    val dateTime1 = LocalDateTime.ofInstant(date1.toInstant, ZoneId.systemDefault())
     (Some(dateTime1.getMonthValue), Some(dateTime1.getDayOfMonth))
   }
 
   def getAvatarUrl(mailAddress: String, size: Int)(implicit context: Context): String = {
-    getAccountByMailAddress(mailAddress).map { account =>
+    getAccountByMailAddressFromCache(mailAddress).map { account =>
       if (account.image.isEmpty && context.settings.gravatar) {
-        s"""https://www.gravatar.com/avatar/${StringUtil.md5(account.mailAddress.toLowerCase)}?s=${size}&d=retro&r=g"""
+        s"""https://www.gravatar.com/avatar/${StringUtil.md5(account.mailAddress.toLowerCase)}?s=$size&d=retro&r=g"""
       } else {
         s"""${context.path}/${account.userName}/_avatar"""
       }
     } getOrElse {
       if (context.settings.gravatar) {
-        s"""https://www.gravatar.com/avatar/${StringUtil.md5(mailAddress.toLowerCase)}?s=${size}&d=retro&r=g"""
+        s"""https://www.gravatar.com/avatar/${StringUtil.md5(mailAddress.toLowerCase)}?s=$size&d=retro&r=g"""
       } else {
         s"""${context.path}/_unknown/_avatar"""
       }
     }
   }
 
-  def getHeadOrTag(refName: String) = refName.split("/").toList match {
+  def getHeadOrTag(refName: String): Option[String] = refName.split("/").toList match {
     case head :: Nil => Some(head)
     case _ :: kind :: name :: Nil if kind == "heads" || kind == "tags" => Some(name)
     case _ => None
