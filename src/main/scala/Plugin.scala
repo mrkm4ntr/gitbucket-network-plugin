@@ -1,9 +1,6 @@
-import javax.servlet.ServletContext
-
-import gitbucket.core.controller.{Context, ControllerBase}
-import gitbucket.core.plugin.{PluginRegistry, Link}
+import gitbucket.core.controller.Context
+import gitbucket.core.plugin.Link
 import gitbucket.core.service.RepositoryService.RepositoryInfo
-import gitbucket.core.service.SystemSettingsService.SystemSettings
 import io.github.gitbucket.solidbase.model.Version
 import mrkm4ntr.gitbucket.network.controller.NetworkController
 
@@ -23,7 +20,8 @@ class Plugin extends gitbucket.core.plugin.Plugin {
     new Version("1.5"),
     new Version("1.6.0"),
     new Version("1.6.1"),
-    new Version("1.7.0")
+    new Version("1.7.0"),
+    new Version("1.8.0")
   )
 
   override val description: String = "Provides Network feature on Gitbucket."
