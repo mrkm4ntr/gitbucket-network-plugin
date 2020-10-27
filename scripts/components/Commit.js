@@ -32,14 +32,14 @@ const Commit =
               return (
                 <path
                   key={p.index} fill="none" strokeWidth="2" stroke={pallet[p.lane % pallet.length]}
-                  d={`M${lane * 15 + 10},15 l5,5 h${(p.lane - lane) * 15 - 5} v${h - 5}`}
+                  d={`M${lane * 15 + 10},15 l5,5 h${(p.lane - lane) * 15 - 10} v${h - 10} l5,5`}
                 />
               );
             }
             return (
               <path
                 key={p.index} fill="none" strokeWidth="2" stroke={pallet[p.lane % pallet.length]}
-                d={`M${lane * 15 + 10},15 l-5,5 h${(p.lane - lane) * 15 + 5} v${h - 5}`}
+                d={`M${lane * 15 + 10},15 l-5,5 h${(p.lane - lane) * 15 + 10} v${h - 10} l-5,5`}
               />
             );
           }
