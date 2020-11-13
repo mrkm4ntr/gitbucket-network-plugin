@@ -17,7 +17,7 @@ const Commit =
         <text x="-28" y="15">
           <tspan dy="5">{day}</tspan>
         </text>
-        {parents.map(p => {
+        {parents.map((p, idx, prnts) => {
           const h = (p.index - index) * height;
           if (lane === p.lane) {
             return (
@@ -27,11 +27,19 @@ const Commit =
               />
             );
           }
-          if (lane < p.lane) {
+          if (prnts.length === 2) {
+            if (lane < p.lane) {
+              return (
+                <path
+                  key={p.index} fill="none" strokeWidth="2" stroke={pallet[p.lane % pallet.length]}
+                  d={`M${lane * 15 + 10},15 l5,5 h${(p.lane - lane) * 15 - 10} v${h - 10} l5,5`}
+                />
+              );
+            }
             return (
               <path
                 key={p.index} fill="none" strokeWidth="2" stroke={pallet[p.lane % pallet.length]}
-                d={`M${lane * 15 + 10},15 l5,5 h${(p.lane - lane) * 15 - 5} v${h - 5}`}
+                d={`M${lane * 15 + 10},15 l-5,5 h${(p.lane - lane) * 15 + 10} v${h - 10} l-5,5`}
               />
             );
           }
