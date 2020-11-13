@@ -9,7 +9,7 @@
     "coverage": "find ./test/ -name '*.spec.js' | xargs nyc _mocha"
   },
   "author": "mrkm4ntr",
-  "license": "MIT",
+  "license": "Apache 2.0 Licence",
   "dependencies": {
     "react": "^15.1.0",
     "react-bootstrap": "^0.29.4",
