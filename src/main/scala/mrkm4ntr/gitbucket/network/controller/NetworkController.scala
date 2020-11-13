@@ -89,12 +89,12 @@ trait NetworkControllerBase extends ControllerBase {
   def getDateMarker(date1: Date, date2: Option[Date]): (Option[Int], Option[Int]) = date2.map { date2 =>
     val dateTime1 = LocalDateTime.ofInstant(date1.toInstant, ZoneId.systemDefault())
     val dateTime2 = LocalDateTime.ofInstant(date2.toInstant, ZoneId.systemDefault())
-    val day = if (ChronoUnit.DAYS.between(dateTime1, dateTime2) > 0) {
+    val day = if (ChronoUnit.DAYS.between(dateTime1.toLocalDate, dateTime2.toLocalDate) > 0) {
       Some(dateTime1.getDayOfMonth)
     } else {
       None
     }
-    val month = if (ChronoUnit.MONTHS.between(dateTime1, dateTime2) > 0) {
+    val month = if (ChronoUnit.MONTHS.between(YearMonth.from(dateTime1), YearMonth.from(dateTime2)) > 0) {
       Some(dateTime1.getMonthValue)
     } else {
       None
