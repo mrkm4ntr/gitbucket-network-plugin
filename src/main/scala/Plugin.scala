@@ -22,7 +22,8 @@ class Plugin extends gitbucket.core.plugin.Plugin {
     new Version("1.6.1"),
     new Version("1.7.0"),
     new Version("1.8.0"),
-    new Version("1.8.1")
+    new Version("1.8.1"),
+    new Version("1.9.0")
   )
 
   override val description: String = "Provides Network feature on Gitbucket."
