@@ -69,7 +69,7 @@ trait NetworkControllerBase extends ControllerBase {
         val revWalk = new PlotWalk(repo)
         revWalk.sort(RevSort.COMMIT_TIME_DESC)
         try {
-          if(allBranches.isDefined) {
+          if (allBranches.isDefined) {
             revWalk.markStart(repository.branchList.map(repo.resolve).map(revWalk.parseCommit(_)).asJava)
           } else {
             revWalk.markStart(revWalk.parseCommit(repo.resolve(currentBranch)))
@@ -107,13 +107,13 @@ trait NetworkControllerBase extends ControllerBase {
 
   def getAvatarUrl(mailAddress: String, size: Int)(implicit context: Context): String = {
     getAccountByMailAddressFromCache(mailAddress).map { account =>
-      if (account.image.isEmpty && context.settings.gravatar) {
+      if (account.image.isEmpty && context.settings.basicBehavior.gravatar) {
         s"""https://www.gravatar.com/avatar/${StringUtil.md5(account.mailAddress.toLowerCase)}?s=$size&d=retro&r=g"""
       } else {
         s"""${context.path}/${account.userName}/_avatar"""
       }
     } getOrElse {
-      if (context.settings.gravatar) {
+      if (context.settings.basicBehavior.gravatar) {
         s"""https://www.gravatar.com/avatar/${StringUtil.md5(mailAddress.toLowerCase)}?s=$size&d=retro&r=g"""
       } else {
         s"""${context.path}/_unknown/_avatar"""
