@@ -1,0 +1,51 @@
+name: build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [8]
+    steps:
+    - uses: actions/checkout@v3
+    - name: Cache
+      uses: actions/cache@v3
+      env:
+        cache-name: cache-sbt-libs
+      with:
+        path: |
+          ~/.ivy2/cache
+          ~/.sbt
+          ~/.coursier
+        key: build-${{ env.cache-name }}-${{ hashFiles('build.sbt') }} 
+    - name: Setup node
+      uses: actions/setup-node@v2
+      with:
+        node-version: '16'
+        cache: npm
+    - name: Run npm build
+      run: |
+        npm install
+        npm test
+        npm run build   
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: temurin
+        java-version: ${{ matrix.java }}
+    - name: Run tests
+      run: |
+        git clone https://github.com/gitbucket/gitbucket.git
+        cd gitbucket
+        sbt publishLocal
+        cd ../
+        sbt test
+    - name: Package
+      run: sbt package
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: gitbucket-network-plugin-java${{ matrix.java }}-${{ github.sha }}
+        path: ./target/scala-2.13/*.jar
