@@ -33,7 +33,7 @@
     "eslint-plugin-import": "^1.9.2",
     "eslint-plugin-jsx-a11y": "^1.5.3",
     "eslint-plugin-react": "^5.2.2",
-    "jsdom": "^9.2.1",
+    "jsdom": "^16.5.0",
     "mocha": "^2.5.3",
     "nyc": "^6.6.1",
     "power-assert": "^1.4.1",
